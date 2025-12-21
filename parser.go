@@ -86,11 +86,12 @@ type Calculator interface {
 	Solve(a, b string) string
 }
 
+
 // Takes values and multiplies
-func (expr Multiply) Solve(a string, b string) string{
+func (expr Multiply) Solve() string{
 	// Num convert
-	numA, errA := strconv.Atoi(a)
-	numB, errB := strconv.Atoi(b)
+	numA, errA := strconv.Atoi(expr.Left)
+	numB, errB := strconv.Atoi(expr.Left)
 
 	// Simple a and b are both nums
 	if (errA == nil && errB == nil){
@@ -103,25 +104,25 @@ func (expr Multiply) Solve(a string, b string) string{
 }
 
 // Takes values and divides
-func (expr Division) Solve(a string, b string){
+func (expr Division) Solve(){
 	return
 }
 
 // Takes values and adds
-func (expr Addition) Solve(a string, b string){
+func (expr Addition) Solve(){
 	return
 }
 
 // Takes values and subtrcts
-func (expr Subtract) Solve(a string, b string){
+func (expr Subtract) Solve(){
 	return
 }
 
-func (expr Power) Solve(a string, b string){
+func (expr Power) Solve(){
 	return
 }
 
-func (expr Modulo) Solve(a string, b string){
+func (expr Modulo) Solve(){
 	return
 }
 
@@ -131,8 +132,6 @@ func Parser(expression string)string{
 	expression = Checker(expression)
 	var subExpression string = ""
 	var newExpression string = ""
-	a := ""
-	b := ""
 	toggleSide := 0
 	
 	
@@ -155,11 +154,19 @@ func Parser(expression string)string{
 		switch newExpression[i]{
 		case '^':
 			toggleSide ^= toggleSide
+			var pow Power
+			l,r := GetSurrounding(i, newExpression)
+			pow.Left = l
+			pow.Right = r
+			pow.Solve()
 
 		case '%':
 			toggleSide ^= toggleSide
 			var mod Modulo
-			mod.Solve(a,b)
+			l,r := GetSurrounding(i, newExpression)
+			mod.Left = l
+			mod.Right = r
+			mod.Solve()
 
 		// sqr cases, should implement cbr cases also but ill do it later.
 		case 's':
@@ -203,6 +210,58 @@ func Parser(expression string)string{
 
 	
 	return ""	
+}
+
+// Id like to somehow pass in any of the operator structs and set them directly, but couldnt figure it out. Here is my hack.
+func GetSurrounding(modIndex int, expr string)(string,string){
+	a := ""
+	aReverse := ""
+	b := ""
+	// Left side A
+
+	index := modIndex - 1
+	for {
+		if (index <= 0){
+			break
+		}
+
+		if (expr[index] != '/' && expr[index] != '*' && 
+			expr[index] != '+' && expr[index] != '-' &&
+			expr[index] != '(' && expr[index] != ')'){
+			aReverse += string(expr[index])
+
+		} else{
+			break
+		}
+
+		index--
+	}
+
+	for i := len(aReverse); i > 0; i--{
+		a += string(aReverse[i])
+	}
+
+	// Right side B
+
+	index = modIndex + 1
+	for {
+		if (index >= len(expr)){
+			break
+		}
+
+		if (expr[index] != '/' && expr[index] != '*' && 
+			expr[index] != '+' && expr[index] != '-' &&
+			expr[index] != '(' && expr[index] != ')'){
+			b += string(expr[index])
+
+		} else{
+			break
+		}
+
+		index++
+	}
+
+	return a, b
 }
 
 
