@@ -132,7 +132,6 @@ func Parser(expression string)string{
 	expression = Checker(expression)
 	var subExpression string = ""
 	var newExpression string = ""
-	toggleSide := 0
 	
 	
 	// Looks for nested () and recursively parses through them.
@@ -153,7 +152,6 @@ func Parser(expression string)string{
 	
 		switch newExpression[i]{
 		case '^':
-			toggleSide ^= toggleSide
 			var pow Power
 			l,r := GetSurrounding(i, newExpression)
 			pow.Left = l
@@ -161,7 +159,6 @@ func Parser(expression string)string{
 			pow.Solve()
 
 		case '%':
-			toggleSide ^= toggleSide
 			var mod Modulo
 			l,r := GetSurrounding(i, newExpression)
 			mod.Left = l
@@ -172,29 +169,52 @@ func Parser(expression string)string{
 		case 's':
 			if (i+2 <= len(newExpression)){
 				if (newExpression[i:3] == "qr("){
-						
-					toggleSide ^= toggleSide
-				}
+					sqrParams := ParenthesesString(newExpression, i+3) // Need to check if there are any variables inside before converting to int.
+					value, err := strconv.Atoi(sqrParams)
 
+					if (err == nil ){
+						return strconv.FormatFloat(math.Sqrt(float64(value)), 'f', 2, 64)
+					} else{
+						fmt.Printf("SQRT Variables found: %s\n", value)
+						// Handle variables 
+					}
+				}
 			}
 		
 		// Log cases. 
 		case 'l':
 			if (len(expression) < i+5){
 				if (expression[i:3] == "og("){
+					logParam := ParenthesesString(newExpression, i+3)
+					value, err := strconv.Atoi(logParam)
 
-					toggleSide ^= toggleSide
+					if (err == nil){
+						return strconv.FormatFloat(math.Log(float64(value)), 'f', 2, 64)
+					} else{ // Handle variable output (not just nums found)
+						fmt.Printf("LOG Variables found: %s\n", value)
+					}
+
 				} else if (expression[i:4] == "og2("){
+					logParam := ParenthesesString(newExpression, i+4)
+					value, err := strconv.Atoi(logParam)
 
-					toggleSide ^= toggleSide
+					if (err == nil){
+						return strconv.FormatFloat(math.Log(float64(value)), 'f', 2, 64)
+					} else{ // Handle variable output (not just nums found)
+						fmt.Printf("LOG2 Variables found: %s\n", value)
+					}
+
 				} else if (expression[i:5] == "og10("){
-					
-					toggleSide ^= toggleSide
+					logParam := ParenthesesString(newExpression, i+5)
+					value, err := strconv.Atoi(logParam)
+
+					if (err == nil){
+						return strconv.FormatFloat(math.Log(float64(value)), 'f', 2, 64)
+					} else{ // Handle variable output (not just nums found)
+						fmt.Printf("LOG10 Variables found: %s\n", value)
+					}
 				}
 			}
-
-		default:
-
 		}
 	}
 
