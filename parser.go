@@ -51,17 +51,35 @@ var specialFunctions = map[string] specialFunc{
 
 // Find expression
 
-type Multiply struct{}
+type Multiply struct{
+	Left string
+	Right string
+}
 
-type Division struct{}
+type Division struct{
+	Left string
+	Right string
+}
 
-type Addition struct{}
+type Addition struct{
+	Left string
+	Right string
+}
 
-type Subtract struct{}
+type Subtract struct{
+	Left string
+	Right string
+}
 
-type Power struct{}
+type Power struct{
+	Left string
+	Right string
+}
 
-type Modulo struct{}
+type Modulo struct{
+	Left string
+	Right string
+}
 
 // Solve any expression with solve
 type Calculator interface {
@@ -90,20 +108,103 @@ func (expr Division) Solve(a string, b string){
 }
 
 // Takes values and adds
-func (exp Addition) Solve(a string, b string){
+func (expr Addition) Solve(a string, b string){
 	return
 }
 
 // Takes values and subtrcts
-func (exp Subtract) Solve(a string, b string){
+func (expr Subtract) Solve(a string, b string){
 	return
 }
 
-// Main call function
-func Parser(expression string){
-	expression = Checker(expression)
-	
+func (expr Power) Solve(a string, b string){
+	return
 }
+
+func (expr Modulo) Solve(a string, b string){
+	return
+}
+
+
+// Main call function
+func Parser(expression string)string{
+	expression = Checker(expression)
+	var subExpression string = ""
+	var newExpression string = ""
+	a := ""
+	b := ""
+	toggleSide := 0
+	
+	
+	// Looks for nested () and recursively parses through them.
+	for i := 0; i < len(expression);i++{
+		if (expression[i] == '('){
+			subExpression = ParenthesesString(expression, i) // Get substring
+			subRange := len(subExpression) // Get size of substring to subtract from main.
+			subExpression = Parser(subExpression) // Solve substring
+			newExpression += subExpression // Add solved substring to current string
+			i += subRange - 1 // Skip to after substring
+		}
+	}
+
+	// BOMDAS
+	
+	// POWER / LOG / SQR / MODULO
+	for i := 0; i < len(newExpression); i++{
+	
+		switch newExpression[i]{
+		case '^':
+			toggleSide ^= toggleSide
+
+		case '%':
+			toggleSide ^= toggleSide
+			var mod Modulo
+			mod.Solve(a,b)
+
+		// sqr cases, should implement cbr cases also but ill do it later.
+		case 's':
+			if (i+2 <= len(newExpression)){
+				if (newExpression[i:3] == "qr("){
+						
+					toggleSide ^= toggleSide
+				}
+
+			}
+		
+		// Log cases. 
+		case 'l':
+			if (len(expression) < i+5){
+				if (expression[i:3] == "og("){
+
+					toggleSide ^= toggleSide
+				} else if (expression[i:4] == "og2("){
+
+					toggleSide ^= toggleSide
+				} else if (expression[i:5] == "og10("){
+					
+					toggleSide ^= toggleSide
+				}
+			}
+
+		default:
+
+		}
+	}
+
+	// MULTIPLICATION / DIVIDISION
+	for i := 0; i < len(newExpression); i++{
+
+	}
+
+	// ADDITON / SUBTRACTION
+	for i := 0; i < len(newExpression); i++{
+
+	}
+
+	
+	return ""	
+}
+
 
 // Used to translate short form into computer readable. Such as 3(4*3) -> 3*(4*3)
 func Checker(expression string)string{
