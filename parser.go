@@ -61,7 +61,7 @@ type Subtract struct{}
 
 type Power struct{}
 
-type modulo struct{}
+type Modulo struct{}
 
 // Solve any expression with solve
 type Calculator interface {
@@ -97,6 +97,30 @@ func (exp Addition) Solve(a string, b string){
 // Takes values and subtrcts
 func (exp Subtract) Solve(a string, b string){
 	return
+}
+
+// Main call function
+func Parser(expression string){
+	expression = Checker(expression)
+	
+}
+
+// Used to translate short form into computer readable. Such as 3(4*3) -> 3*(4*3)
+func Checker(expression string)string{
+	var newExpression string = ""
+
+	// For every '(' found check to make sure its not the first index and add a *
+	for i := 0; i < len(expression); i++{
+		if (expression[i] == '(' && i != 0 && 
+		expression[i - 1] != '/' && expression[i - 1] != '*' && 
+		expression[i - 1] != '+' && expression[i - 1] != '-'){
+			newExpression += string("*")
+		}
+	
+		newExpression += string(expression[i])
+	}
+
+	return newExpression
 }
 
 // Used to find substrings with parentheses ()
