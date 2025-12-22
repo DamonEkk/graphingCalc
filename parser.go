@@ -95,35 +95,79 @@ func (expr Multiply) Solve() string{
 
 	// Simple a and b are both nums
 	if (errA == nil && errB == nil){
-		return string(numA * numB)
+		return strconv.Itoa(numA * numB)
 	}
-
-
 
 	return ""
 }
 
 // Takes values and divides
-func (expr Division) Solve(){
-	return
+func (expr Division) Solve() string{
+	// Num convert
+	numA, errA := strconv.Atoi(expr.Left)
+	numB, errB := strconv.Atoi(expr.Left)
+
+	// Simple a and b are both nums
+	if (errA == nil && errB == nil){
+		return strconv.Itoa(numA / numB)
+	}
+
+	return ""
 }
 
 // Takes values and adds
-func (expr Addition) Solve(){
-	return
+func (expr Addition) Solve() string{
+	// Num convert
+	numA, errA := strconv.Atoi(expr.Left)
+	numB, errB := strconv.Atoi(expr.Left)
+
+	// Simple a and b are both nums
+	if (errA == nil && errB == nil){
+		return strconv.Itoa(numA + numB)
+	}
+
+	return ""
 }
 
 // Takes values and subtrcts
-func (expr Subtract) Solve(){
-	return
+func (expr Subtract) Solve() string{
+	// Num convert
+	numA, errA := strconv.Atoi(expr.Left)
+	numB, errB := strconv.Atoi(expr.Left)
+
+	// Simple a and b are both nums
+	if (errA == nil && errB == nil){
+		return strconv.Itoa(numA - numB)
+	}
+
+	return ""
 }
 
-func (expr Power) Solve(){
-	return
+func (expr Power) Solve() string{
+	// Num convert
+	numA, errA := strconv.Atoi(expr.Left)
+	numB, errB := strconv.Atoi(expr.Left)
+
+	// Simple a and b are both nums
+	if (errA == nil && errB == nil){
+		return strconv.Itoa(numA ^ numB)
+	}
+
+	return ""
 }
 
-func (expr Modulo) Solve(){
-	return
+func (expr Modulo) Solve() string{
+	// Num convert
+	numA, errA := strconv.Atoi(expr.Left)
+	numB, errB := strconv.Atoi(expr.Left)
+
+	// Simple a and b are both nums
+	if (errA == nil && errB == nil){
+		return strconv.Itoa(numA % numB)
+	}
+
+
+	return ""
 }
 
 
@@ -220,12 +264,44 @@ func Parser(expression string)string{
 
 	// MULTIPLICATION / DIVIDISION
 	for i := 0; i < len(newExpression); i++{
-
+		switch newExpression[i]{
+		case '*':
+			var mod Multiply
+			l,r := GetSurrounding(i, newExpression)
+			mod.Left = l
+			mod.Right = r
+			mod.Solve()
+			
+		case '/':
+			var mod Division
+			l,r := GetSurrounding(i, newExpression)
+			mod.Left = l
+			mod.Right = r
+			mod.Solve()	
+		}
+		
 	}
 
 	// ADDITON / SUBTRACTION
-	for i := 0; i < len(newExpression); i++{
+	for i := 0; i < len(newExpression); i++{	
 
+		switch newExpression[i]{
+		case '+':
+			var mod Addition
+			l,r := GetSurrounding(i, newExpression)
+			mod.Left = l
+			mod.Right = r
+			mod.Solve()
+
+		case '-':
+			var mod Subtract 
+			l,r := GetSurrounding(i, newExpression)
+			mod.Left = l
+			mod.Right = r
+			mod.Solve()
+
+		}	
+		
 	}
 
 	
