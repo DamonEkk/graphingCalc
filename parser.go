@@ -200,14 +200,16 @@ func Parser(expression string)string{
 			l,r := GetSurrounding(i, newExpression)
 			pow.Left = l
 			pow.Right = r
-			pow.Solve()
+			newExpression = ReplaceExpression(i, newExpression, pow.Solve(), pow.Left, pow.Right) // Solve and replace in expression string
+
 
 		case '%':
 			var mod Modulo
 			l,r := GetSurrounding(i, newExpression)
 			mod.Left = l
 			mod.Right = r
-			mod.Solve()
+			newExpression = ReplaceExpression(i, newExpression, mod.Solve(), mod.Left, mod.Right) // Solve and replace in expression string
+
 
 		// sqr cases, should implement cbr cases also but ill do it later.
 		case 's':
@@ -227,6 +229,7 @@ func Parser(expression string)string{
 		
 		// Log cases. 
 		case 'l':
+			// Case Log()
 			if (len(expression) < i+5){
 				if (expression[i:3] == "og("){
 					logParam := ParenthesesString(newExpression, i+3)
@@ -238,6 +241,7 @@ func Parser(expression string)string{
 						fmt.Printf("LOG Variables found: %s\n", value)
 					}
 
+				// Case Log2()
 				} else if (expression[i:4] == "og2("){
 					logParam := ParenthesesString(newExpression, i+4)
 					value, err := strconv.Atoi(logParam)
@@ -248,6 +252,7 @@ func Parser(expression string)string{
 						fmt.Printf("LOG2 Variables found: %s\n", value)
 					}
 
+				// Case Log10()
 				} else if (expression[i:5] == "og10("){
 					logParam := ParenthesesString(newExpression, i+5)
 					value, err := strconv.Atoi(logParam)
@@ -266,46 +271,63 @@ func Parser(expression string)string{
 	for i := 0; i < len(newExpression); i++{
 		switch newExpression[i]{
 		case '*':
-			var mod Multiply
-			l,r := GetSurrounding(i, newExpression)
-			mod.Left = l
-			mod.Right = r
-			mod.Solve()
+			var mult Multiply
+			l,r := GetSurrounding(i, newExpression) // Get the left and right variables and consts on operator
+			mult.Left = l
+			mult.Right = r
+			newExpression = ReplaceExpression(i, newExpression, mult.Solve(), mult.Left, mult.Right) // Solve and replace in expression string
 			
 		case '/':
-			var mod Division
+			var div Division
 			l,r := GetSurrounding(i, newExpression)
-			mod.Left = l
-			mod.Right = r
-			mod.Solve()	
+			div.Left = l
+			div.Right = r
+			newExpression = ReplaceExpression(i, newExpression, div.Solve(), div.Left, div.Right)
 		}
 		
 	}
 
 	// ADDITON / SUBTRACTION
 	for i := 0; i < len(newExpression); i++{	
-
+		
+		// Same logic as above with different operators
 		switch newExpression[i]{
 		case '+':
-			var mod Addition
+			var add Addition
 			l,r := GetSurrounding(i, newExpression)
-			mod.Left = l
-			mod.Right = r
-			mod.Solve()
+			add.Left = l
+			add.Right = r
+			newExpression = ReplaceExpression(i, newExpression, add.Solve(), add.Left, add.Right)
 
 		case '-':
-			var mod Subtract 
+			var sub Subtract 
 			l,r := GetSurrounding(i, newExpression)
-			mod.Left = l
-			mod.Right = r
-			mod.Solve()
+			sub.Left = l
+			sub.Right = r
+			newExpression = ReplaceExpression(i, newExpression, sub.Solve(), sub.Left, sub.Right)
 
 		}	
 		
 	}
+	return newExpression	
+}
 
-	
-	return ""	
+// Replace expression allows us to delete the original expression that was solved and replace it with the solved.
+func ReplaceExpression(index int, originalExpression string, solvedExpression string, left string, right string)string{
+	var replacedExpresssion string = ""
+
+	// Parse through originalExpression till we get to the range of the solved operation. Replace with solvedExpression
+	for i := 0; i < len(originalExpression); i++{
+		if (i == index) {
+			replacedExpresssion += solvedExpression
+		} else if (i >= len(left) && i <= len(right)){
+			continue
+		}
+
+		replacedExpresssion += string(originalExpression[i])
+	}
+
+	return replacedExpresssion
 }
 
 // Id like to somehow pass in any of the operator structs and set them directly, but couldnt figure it out. Here is my hack.
@@ -317,10 +339,12 @@ func GetSurrounding(modIndex int, expr string)(string,string){
 
 	index := modIndex - 1
 	for {
-		if (index <= 0){
+		// If index == 0 we have found all possible variables.
+		if (index < 0){
 			break
 		}
 
+		// Check left side for operator. End of variable essentially
 		if (expr[index] != '/' && expr[index] != '*' && 
 			expr[index] != '+' && expr[index] != '-' &&
 			expr[index] != '(' && expr[index] != ')'){
@@ -333,6 +357,7 @@ func GetSurrounding(modIndex int, expr string)(string,string){
 		index--
 	}
 
+	// Left is added backwards so small loop to reverse it.
 	for i := len(aReverse); i > 0; i--{
 		a += string(aReverse[i])
 	}
@@ -341,10 +366,12 @@ func GetSurrounding(modIndex int, expr string)(string,string){
 
 	index = modIndex + 1
 	for {
-		if (index >= len(expr)){
+		// Find end of expression.
+		if (index > len(expr)){
 			break
 		}
 
+		// Check for operators as a boundary for variable.
 		if (expr[index] != '/' && expr[index] != '*' && 
 			expr[index] != '+' && expr[index] != '-' &&
 			expr[index] != '(' && expr[index] != ')'){
