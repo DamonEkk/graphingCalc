@@ -91,11 +91,17 @@ type Calculator interface {
 func (expr Multiply) Solve() string{
 	// Num convert
 	numA, errA := strconv.Atoi(expr.Left)
-	numB, errB := strconv.Atoi(expr.Left)
+	numB, errB := strconv.Atoi(expr.Right)
 
 	// Simple a and b are both nums
-	if (errA == nil && errB == nil){
+	if (errA == nil && errB == nil){ // Num * Num
 		return strconv.Itoa(numA * numB)
+	} else if (errA == nil && errB != nil){ // Num * Expression
+		return MultAdder(numA, expr.Right)	
+	} else if (errA != nil && errB == nil){ // Expression * Num
+		return MultAdder(numB, expr.Left)
+	} else { // Expression * Expression
+
 	}
 
 	return ""
@@ -167,6 +173,70 @@ func (expr Modulo) Solve() string{
 	}
 
 
+	return ""
+}
+
+// Used to mult one sided variable to a num.
+func MultAdder(num int, expression string)string{
+	expressionNum := ""
+	variableName := ""
+	specialInside := ""
+	result := ""
+	stopIndex := 0
+	flag := 0
+
+	// Check each char for num values that will be multiplied.
+	for i := 0; i < len(expression); i++{
+		_, err := strconv.Atoi(string(expression[i]))
+		if (err != nil){
+			stopIndex = i
+			break
+		}
+		expressionNum += string(expression[i])
+	}
+
+	// Used to check special function, second loop used for readability
+	for i := stopIndex; i < len(expression); i++{
+
+		if (flag == 1){
+			
+			if (expression[i] == ')'){
+				flag = 0
+				continue
+			}
+
+			specialInside += string(expression[i])
+			continue
+		}
+
+		if (expression[i] != '('){
+			variableName += string(expression[i])
+		}  else {
+			flag = 1 
+			continue
+		}
+	}
+
+	special, ok := specialFunctions[variableName]
+
+	if (!ok && len(expressionNum) == 0){
+		result = strconv.Itoa(num)
+		result += variableName
+	} else if (!ok && len(expressionNum) > 0){
+		eNum, _ := strconv.Atoi(expressionNum)
+		result = strconv.Itoa(eNum * num)
+		result += variableName
+	} else{
+		result = SpecialFunctionHandler(special, specialInside)
+
+		// 2 cases here. 1 the spcialFunction inside is returned back due to having a variable inside. 2. We get a num back and can finish.
+
+	}
+
+	return result
+}
+
+func SpecialFunctionHandler(special specialFunc, params string)string{
 	return ""
 }
 
