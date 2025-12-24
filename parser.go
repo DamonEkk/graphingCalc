@@ -230,14 +230,30 @@ func MultAdder(num int, expression string)string{
 		result = SpecialFunctionHandler(special, specialInside)
 
 		// 2 cases here. 1 the spcialFunction inside is returned back due to having a variable inside. 2. We get a num back and can finish.
+		specialNum, err := strconv.Atoi(result)
 
+		if (err == nil){
+			result = strconv.Itoa(specialNum * num)	
+		} else{
+			return expressionNum
+		}
 	}
 
 	return result
 }
 
+// Used to do specialFunction
 func SpecialFunctionHandler(special specialFunc, params string)string{
-	return ""
+	num, err := strconv.Atoi(params) 
+
+	if (err != nil){
+		return params
+	}
+
+	// Executes specialfunction and turns back to a string
+	returnValue := fmt.Sprintf("%f", special.Special(float64(num)))
+
+	return returnValue
 }
 
 
